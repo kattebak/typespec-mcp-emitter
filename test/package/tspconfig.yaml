@@ -1,0 +1,7 @@
+emit:
+  - "@kattebak/typespec-mcp-emitter"
+options:
+  "@kattebak/typespec-mcp-emitter":
+    emitter-output-dir: "{cwd}/build/petstore-package"
+    package-name: "@petstore/mcp-tools"
+    package-version: "0.0.1"
