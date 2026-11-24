@@ -1,6 +1,9 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-export type McpEmitterOptions = Record<string, never>;
+export interface McpEmitterOptions {
+	"package-name"?: string;
+	"package-version"?: string;
+}
 
 export const $lib = createTypeSpecLibrary({
 	name: "@kattebak/typespec-mcp-emitter",
@@ -78,7 +81,10 @@ export const $lib = createTypeSpecLibrary({
 		options: {
 			type: "object",
 			additionalProperties: false,
-			properties: {},
+			properties: {
+				"package-name": { type: "string", nullable: true },
+				"package-version": { type: "string", nullable: true },
+			},
 			required: [],
 		},
 	},
