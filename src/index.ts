@@ -28,10 +28,11 @@ export {
 	toSnakeCase,
 } from "./derive.js";
 export { $onEmit } from "./emitter.js";
+export type { InputSchema } from "./input-schema.js";
 export { $lib, type McpEmitterOptions } from "./lib.js";
 
-export function $onValidate(program: Program): void {
+export async function $onValidate(program: Program): Promise<void> {
 	validateNotToolOverrides(program);
-	const [, diagnostics] = deriveCatalogues(program);
+	const [, diagnostics] = await deriveCatalogues(program);
 	program.reportDiagnostics(diagnostics);
 }

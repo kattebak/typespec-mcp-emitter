@@ -5,7 +5,7 @@ import type { McpEmitterOptions } from "./lib.js";
 export async function $onEmit(
 	context: EmitContext<McpEmitterOptions>,
 ): Promise<void> {
-	const [catalogues] = deriveCatalogues(context.program);
+	const [catalogues] = await deriveCatalogues(context.program);
 
 	for (const { namespace, service, tools, excluded } of catalogues) {
 		if (tools.length === 0) {

@@ -26,7 +26,7 @@ async function createRunner() {
 async function compileCatalogues(code: string) {
 	const runner = await createRunner();
 	await runner.compile(code);
-	const [catalogues] = deriveCatalogues(runner.program);
+	const [catalogues] = await deriveCatalogues(runner.program);
 	return { runner, catalogues };
 }
 

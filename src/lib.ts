@@ -35,6 +35,30 @@ export const $lib = createTypeSpecLibrary({
 				default: paramMessage`Operation ${"operation"} has neither @toolDescription nor @doc.`,
 			},
 		},
+		"body-not-json": {
+			severity: "error",
+			messages: {
+				default: paramMessage`Operation ${"operation"} takes a ${"contentTypes"} body; a tool input needs application/json.`,
+			},
+		},
+		"body-not-object": {
+			severity: "error",
+			messages: {
+				default: paramMessage`Operation ${"operation"} takes a body that is not an object, so it cannot merge into one tool input.`,
+			},
+		},
+		"input-name-clash": {
+			severity: "error",
+			messages: {
+				default: paramMessage`Operation ${"operation"} has a parameter and a body property both named "${"name"}".`,
+			},
+		},
+		"recursive-input": {
+			severity: "error",
+			messages: {
+				default: paramMessage`Operation ${"operation"} takes an input that refers to itself, which one flat tool input cannot carry.`,
+			},
+		},
 	},
 	state: {
 		toolName: { description: "Tool name override for an operation" },
