@@ -25,6 +25,12 @@ import {
 	getToolName,
 	type ToolEffect,
 } from "./decorators.js";
+import {
+	deriveInputSchema,
+	getOpenApiDocuments,
+	type InputSchema,
+	type JsonObject,
+} from "./input-schema.js";
 import { createDiagnostic } from "./lib.js";
 
 export interface ToolAnnotations {
@@ -46,7 +52,7 @@ export interface ToolBinding {
 export interface Tool {
 	name: string;
 	description: string;
-	inputSchema: Record<string, never>;
+	inputSchema: InputSchema;
 	annotations: ToolAnnotations;
 	binding: ToolBinding;
 }
@@ -157,6 +163,7 @@ function deriveCatalogue(
 	program: Program,
 	httpService: HttpService,
 	title: string,
+	document: JsonObject,
 ): [ServiceCatalogue, readonly Diagnostic[]] {
 	const diagnostics = createDiagnosticCollector();
 	const tools: Tool[] = [];
@@ -208,7 +215,7 @@ function deriveCatalogue(
 		tools.push({
 			name,
 			description,
-			inputSchema: {},
+			inputSchema: diagnostics.pipe(deriveInputSchema(document, httpOperation)),
 			annotations: deriveAnnotations(program, httpOperation),
 			binding: deriveBinding(program, httpOperation),
 		});
@@ -225,21 +232,31 @@ function deriveCatalogue(
 	];
 }
 
-export function deriveCatalogues(
+export async function deriveCatalogues(
 	program: Program,
-): [ServiceCatalogue[], readonly Diagnostic[]] {
+): Promise<[ServiceCatalogue[], readonly Diagnostic[]]> {
 	const diagnostics = createDiagnosticCollector();
 	const [httpServices] = getAllHttpServices(program);
-	const catalogues: ServiceCatalogue[] = [];
-	for (const httpService of httpServices) {
+	const services = httpServices.flatMap((httpService) => {
 		const service = getService(program, httpService.namespace);
-		if (service === undefined) {
-			continue;
+		return service === undefined ? [] : [{ httpService, service }];
+	});
+	if (services.length === 0) {
+		return [[], diagnostics.diagnostics];
+	}
+
+	const documents = await getOpenApiDocuments(program);
+	const catalogues = services.map(({ httpService, service }) => {
+		const document = documents.get(httpService.namespace);
+		if (document === undefined) {
+			throw new Error(
+				`No OpenAPI document for ${getNamespaceFullName(httpService.namespace)}`,
+			);
 		}
 		const title = service.title ?? httpService.namespace.name;
-		catalogues.push(
-			diagnostics.pipe(deriveCatalogue(program, httpService, title)),
+		return diagnostics.pipe(
+			deriveCatalogue(program, httpService, title, document),
 		);
-	}
+	});
 	return [catalogues, diagnostics.diagnostics];
 }
