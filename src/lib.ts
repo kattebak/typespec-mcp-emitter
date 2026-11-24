@@ -23,6 +23,18 @@ export const $lib = createTypeSpecLibrary({
 				default: paramMessage`Operation "${"operation"}" carries @notTool and a tool override at once.`,
 			},
 		},
+		"duplicate-tool-name": {
+			severity: "error",
+			messages: {
+				default: paramMessage`Tool name "${"name"}" is used by both ${"first"} and ${"second"}. Give one of them a @toolName.`,
+			},
+		},
+		"missing-tool-description": {
+			severity: "error",
+			messages: {
+				default: paramMessage`Operation ${"operation"} has neither @toolDescription nor @doc.`,
+			},
+		},
 	},
 	state: {
 		toolName: { description: "Tool name override for an operation" },
@@ -48,4 +60,8 @@ export const $lib = createTypeSpecLibrary({
 	},
 });
 
-export const { reportDiagnostic, stateKeys: StateKeys } = $lib;
+export const {
+	reportDiagnostic,
+	createDiagnostic,
+	stateKeys: StateKeys,
+} = $lib;
